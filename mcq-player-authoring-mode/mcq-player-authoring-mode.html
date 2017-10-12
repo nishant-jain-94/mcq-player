@@ -1,0 +1,84 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="simple-mde-import.html">
+<link rel="import" href="highlightjs-import.html">
+
+<dom-module id="mcq-player-authoring-mode">
+  <template>
+    <link rel="stylesheet" href="/bower_components/highlightjs/styles/github.css">
+    <link rel="stylesheet" href="/bower_components/simplemde/dist/simplemde.min.css">
+    <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Lato:400,700,900');
+      :host {
+        display: block;
+      }
+
+      .editable {
+        height: 50px;
+        background: whitesmoke;
+      }
+
+      .CodeMirror, .cm-s-paper, CodeMirror-wrap {
+        font-family: 'Lato', sans-serif !important;
+      }
+    </style>
+    <textarea id="editor"></textarea>
+  </template>
+
+  <script>
+    class McqPlayerAuthoringMode extends Polymer.Element {
+      static get is() { 
+        return 'mcq-player-authoring-mode'; 
+      }
+      
+      static get properties() {
+        return {
+          simplemde: {
+            type: Object,
+          },
+          mdQuestion: {
+            type: String,
+            notify: true
+          },
+          value: {
+            type: String,
+            notify: true
+          }
+        }
+      }
+      
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this._initialize();
+      }
+
+      _initialize() {
+        const boilerplate = this.value || `# Question \n# Instructions \n# Option-1 \n# Option-2 \n# Option-3 \n# Option-4 \n`;
+        const options = {
+          element: this.$.editor,
+          renderingConfig: {
+            codeSyntaxHighlighting: true
+          },
+          toolbar: false
+        };
+        const simplemde = new SimpleMDE(options);
+        this.set('simplemde', simplemde);
+        simplemde.value(boilerplate);
+        simplemde.codemirror.on('changes', this._handleChanges.bind(this));
+      }
+
+      _handleChanges() {
+        this.set('mdQuestion', this.simplemde.value());
+      }
+
+      publishQuestion() {
+        this.set('question', question);
+      }
+    }
+    window.customElements.define(McqPlayerAuthoringMode.is, McqPlayerAuthoringMode);
+  </script>
+</dom-module>

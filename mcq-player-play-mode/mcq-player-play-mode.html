@@ -1,0 +1,64 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="mcq-player-play-mode">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <textarea id="question"></textarea>
+    <textarea id="instructions"></textarea>
+  </template>
+
+  <script>
+    class McqPlayerPlayMode extends Polymer.Element {
+      static get is() { return 'mcq-player-play-mode'; }
+      static get properties() {
+        return {
+          assessmentItem: {
+            type: Object,
+            notify: true
+          },
+          mdAssessmentItem: {
+            type: String
+          }
+        };
+      }
+
+      static get observers() {
+        return [
+          'assessmentItemChanged(mdAssessmentItem)'
+        ]
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this._intialize();
+      }
+
+      _initialize() {
+        this.smdeQuestion = new SimpleMDE({
+          element: this.$.question,
+          renderingConfig: {
+            codeSyntaxHighlighting: true
+          }
+        });
+        this.smdeInstructions = new SimpleMDE({
+          element: this.$.instructions,
+          renderingConfig: {
+            codeSyntaxHighlighting: true
+          }
+        });
+      }
+
+      assessmentItemChanged(mdAssessmentItem) {
+        this.set('assessmentItem.question', mdAssessmentItem);
+        this.set
+      }
+
+    }
+
+    window.customElements.define(McqPlayerPlayMode.is, McqPlayerPlayMode);
+  </script>
+</dom-module>
