@@ -1,14 +1,32 @@
-<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="showdown-import.html">
+<link rel="import" href="jquery-import.html">
+<link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
 
 <dom-module id="mcq-player-play-mode">
   <template>
+      <link rel="stylesheet" href="../bower_components/simplemde/dist/simplemde.min.css">
     <style>
       :host {
         display: block;
       }
+      
+      .option {
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      paper-radio-button {
+        padding-top: 15px;
+      }
+
     </style>
-    <textarea id="question"></textarea>
-    <textarea id="instructions"></textarea>
+    <div id="question"></div>
+    <div id="instructions"></div>
+    <paper-radio-group id="options">
+      
+    </paper-radio-group>
   </template>
 
   <script>
@@ -21,7 +39,9 @@
             notify: true
           },
           mdAssessmentItem: {
-            type: String
+            type: String,
+            observers: 'assessmentItemChanged',
+            value: `# Question\nWhat is react\n# Instructions\nGo over there\n# Option-1\nThis is Option 1\n# Option 2\nThis is Option 2`
           }
         };
       }
@@ -32,31 +52,51 @@
         ]
       }
 
+      constructor() {
+        super();
+        this.convertor = new showdown.Converter();
+        this.options = [];  
+      }
+
       connectedCallback() {
         super.connectedCallback();
-        this._intialize();
+        this._initialize();
       }
 
       _initialize() {
-        this.smdeQuestion = new SimpleMDE({
-          element: this.$.question,
-          renderingConfig: {
-            codeSyntaxHighlighting: true
-          }
-        });
-        this.smdeInstructions = new SimpleMDE({
-          element: this.$.instructions,
-          renderingConfig: {
-            codeSyntaxHighlighting: true
-          }
-        });
+        
       }
 
       assessmentItemChanged(mdAssessmentItem) {
-        this.set('assessmentItem.question', mdAssessmentItem);
-        this.set
+        const htmlTemplate = this.convertor.makeHtml(mdAssessmentItem);
+        const htmlElement = document.createElement('div');
+        htmlElement.innerHTML = htmlTemplate;
+        
+        const h1Elements = jQuery(htmlElement).find('h1').toArray();
+        const contents = h1Elements.map((h1Element, index) => {
+          let siblings;
+          if(index != h1Elements.length) {
+            siblings = jQuery(h1Element).nextUntil(jQuery(h1Elements[index + 1])[0]);
+          } else {
+            siblings = jQuery(h1Element).nextAll();
+          }
+          return siblings;
+        });
+        
+        jQuery(this.$.question).append(contents[0]);
+        jQuery(this.$.instructions).append(contents[1]);
+        const optionTemplate = `<paper-radio-button></paper-radio-button><div class="option"></div>`;
+          const options = contents.splice(2, contents.length - 2).map((option) => {
+            const optionElement = document.createElement('div');
+            optionElement.innerHTML = optionTemplate;
+            const radioButton = jQuery(jQuery(optionElement).find('paper-radio-button')[0]); 
+            const radioButtonContent = jQuery(jQuery(optionElement).find('.option')[0]).html(option);
+            console.log(radioButtonContent);
+            radioButtonContent.insertAfter(radioButton);
+            return optionElement;
+        });
+        jQuery(this.$.options).append(options);
       }
-
     }
 
     window.customElements.define(McqPlayerPlayMode.is, McqPlayerPlayMode);

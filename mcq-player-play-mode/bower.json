@@ -6,7 +6,9 @@
     "polymer": "Polymer/polymer#^2.0.0",
     "jquery": "^3.2.1",
     "showdown": "^1.7.6",
-    "simplemde": "^1.11.2"
+    "simplemde": "^1.11.2",
+    "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
+    "paper-radio-group": "PolymerElements/paper-radio-group#^2.0.0"
   },
   "devDependencies": {
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
