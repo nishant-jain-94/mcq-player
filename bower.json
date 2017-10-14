@@ -1,0 +1,37 @@
+{
+  "name": "mcq-player",
+  "homepage": "https://github.com/nishant-jain-94/mcq-player",
+  "authors": [
+    "Nishant Jain <nishantkumarajain@gmail.com>"
+  ],
+  "description": "A Player to render MCQ Questions",
+  "main": "",
+  "keywords": [
+    "mcq-player"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "simplemde": "^1.11.2",
+    "showdown": "^1.7.6",
+    "jquery": "^3.2.1",
+    "polymer": "Polymer/polymer#^2.1.1",
+    "paper-input-elements": "PolymerElements/paper-input-elements",
+    "font-awesome": "^4.7.0",
+    "highlightjs": "^9.12.0",
+    "paper-radio-button": "^2.0.0",
+    "paper-radio-group": "^2.0.0"
+  },
+  "devDependencies": {
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
+    "web-component-tester": "Polymer/web-component-tester#^6.3.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.14"
+  }
+}
