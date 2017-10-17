@@ -77,6 +77,12 @@
 
       _handleChanges() {
         this.set('mdQuestion', this.simplemde.value());
+        const changedMdQuestion = {
+          detail: {
+            mdQuestion: this.mdQuestion
+          }
+        };
+        this.dispatchEvent(new CustomEvent('questionChanged', changedMdQuestion));
       }
 
       publishQuestion() {
