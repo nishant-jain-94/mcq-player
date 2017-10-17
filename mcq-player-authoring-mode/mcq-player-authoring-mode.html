@@ -1,6 +1,8 @@
 <link rel="import" href="../../polymer/polymer-element.html">
 <link rel="import" href="simple-mde-import.html">
 <link rel="import" href="highlightjs-import.html">
+<link rel="import" href="../../paper-card/paper-card.html">
+<link rel="import" href="../../paper-button/paper-button.html">
 
 <dom-module id="mcq-player-authoring-mode">
   <template>
@@ -25,8 +27,50 @@
         height: 100% !important;
         font-family: 'Open Sans', sans-serif !important;
       }
+
+      .editor-card-element {
+        width: 100%;
+      }
+
+      .card-header{
+        background-color: #DD2C00;
+        height: 150px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+      }
+      
+      .card-header-content {
+        text-align: center;
+      }
+
+      .action-buttons{
+        text-align: right;
+        padding: 15px;
+      }
+
+      paper-button.publish-button {
+        background: #DD2C00;
+        color: #ffffff;
+      }
+
     </style>
-    <textarea id="editor"></textarea>
+    <paper-card class="editor-card-element">
+      <div class="card-header">
+        <div class="card-header-content">
+          <h3>Author a question</h3>
+          <p>Use Markdown to author a question</p>
+        </div>
+      </div>
+      <div class="card-content">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="card-actions action-buttons">
+        <paper-button raised on-click="publishQuestion" class="publish-button">Publish</paper-button>
+      </div>
+    </paper-card>
   </template>
 
   <script>
@@ -86,7 +130,12 @@
       }
 
       publishQuestion() {
-        this.set('question', question);
+        const publishedQuestion = {
+          detail: {
+            mdQuestion: this.mdQuestion
+          }
+        };
+        this.dispatchEvent(new CustomEvent('questionPublished', publishedQuestion));
       }
     }
     window.customElements.define(McqPlayerAuthoringMode.is, McqPlayerAuthoringMode);
