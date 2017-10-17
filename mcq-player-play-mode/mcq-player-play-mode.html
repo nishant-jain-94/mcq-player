@@ -86,8 +86,8 @@
           return siblings;
         });
         
-        jQuery(this.$.question).append(contents[0]);
-        jQuery(this.$.instructions).append(contents[1]);
+        jQuery(this.$.question).empty().append(contents[0]);
+        jQuery(this.$.instructions).empty().append(contents[1]);
         const optionTemplate = `<paper-radio-button></paper-radio-button><div class="option"></div>`;
           const options = contents.splice(2, contents.length - 2).map((option) => {
             const optionElement = document.createElement('div');
@@ -98,7 +98,7 @@
             radioButtonContent.insertAfter(radioButton);
             return optionElement;
         });
-        jQuery(this.$.options).append(options);
+        jQuery(this.$.options).empty().append(options);
       }
     }
 
