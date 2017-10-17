@@ -3,6 +3,8 @@
 <link rel="import" href="jquery-import.html">
 <link rel="import" href="../../paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+
 
 <dom-module id="mcq-player-play-mode">
   <template>
@@ -22,10 +24,17 @@
         vertical-align: top;
       }
 
+      paper-toolbar.black {
+        --paper-toolbar-background: black;
+      }
+
       paper-radio-button {
-        padding-top: 15px;
+        padding-top: 20px;
       }
     </style>
+    <paper-toolbar class="black">
+      <span slot="top" class="title">Multiple Choice Question</span>
+    </paper-toolbar>
     <h1>Question</h1>
     <div id="question"></div>
     <h1>Instructions</h1>
@@ -48,7 +57,7 @@
           mdAssessmentItem: {
             type: String,
             observers: 'assessmentItemChanged',
-            value: `# Question\nWhat is react\n# Instructions\nGo over there\n# Option-1\nThis is Option 1\n# Option 2\nThis is Option 2`
+            value: `# Question\nWhat is react\n# Instructions\nGo over there\n# Option-1\nThis is Option 1\n# Option 2\n## This is Option 2`
           }
         };
       }
