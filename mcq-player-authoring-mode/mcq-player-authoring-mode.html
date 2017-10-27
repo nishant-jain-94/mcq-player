@@ -3,6 +3,8 @@
 <link rel="import" href="highlightjs-import.html">
 <link rel="import" href="../../paper-card/paper-card.html">
 <link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="showdown-import.html">
+<link rel="import" href="jquery-import.html">
 
 <dom-module id="mcq-player-authoring-mode">
   <template>
@@ -86,7 +88,8 @@
           },
           mdQuestion: {
             type: String,
-            notify: true
+            notify: true,
+            value: ''
           },
           value: {
             type: String,
@@ -97,6 +100,19 @@
       
       constructor() {
         super();
+        this.convertor = new showdown.Converter();
+      }
+
+      // Not a part of MCQ Player should be imported as external script. 
+      guid() {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        };
+        
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
       }
 
       connectedCallback() {
@@ -104,8 +120,9 @@
         this._initialize();
       }
 
+      //TODO: Convert boilerplate as a private property in properties method.s 
       _initialize() {
-        const boilerplate = this.value || `# Question \n# Instructions \n# Option-1 \n# Option-2 \n# Option-3 \n# Option-4 \n`;
+        const boilerplate = this.value || `# Question \n# Instructions \n# Option-1 \n# Option-2 \n# Option-3 \n# Option-4 \n# Answer \n`;
         const options = {
           element: this.$.editor,
           renderingConfig: {
@@ -117,6 +134,7 @@
         this.set('simplemde', simplemde);
         simplemde.value(boilerplate);
         simplemde.codemirror.on('changes', this._handleChanges.bind(this));
+        this.set('mdQuestion', boilerplate);
       }
 
       _handleChanges() {
@@ -130,9 +148,35 @@
       }
 
       publishQuestion() {
+        const htmlTemplate = this.convertor.makeHtml(this.mdQuestion);
+
+        const htmlElement = document.createElement('div');
+        htmlElement.innerHTML = htmlTemplate;
+
+        const h1Elements = jQuery(htmlElement).find('h1').toArray();
+        const mcqQuestion = {};
+        
+        // Populate MCQQuestion
+        h1Elements.forEach((h1Element, index) => {
+          let siblings;
+          const elementId = $(h1Element).attr('id');
+          mcqQuestion[elementId] = {};
+          mcqQuestion[elementId].id = this.guid();
+          if(index != h1Elements.length) {
+            mcqQuestion[elementId].content = jQuery(h1Element).nextUntil(jQuery(h1Elements[index + 1])[0]);
+          } else {
+            const elementId = $(h1Element).attr('id');
+            mcqQuestion[elementId].content = jQuery(h1Element).nextAll();
+          }
+        });
+        const answerText = mcqQuestion.answer.content[0].innerText.trim().toLowerCase().replace(/-/g, '');
+        mcqQuestion.answer.answerId = mcqQuestion[answerText].id;
+        delete mcqQuestion.answer.content;
+
         const publishedQuestion = {
           detail: {
-            mdQuestion: this.mdQuestion
+            mdQuestion: this.mdQuestion,
+            mcqQuestion: mcqQuestion
           }
         };
         this.dispatchEvent(new CustomEvent('questionPublished', publishedQuestion));
