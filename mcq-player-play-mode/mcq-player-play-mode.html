@@ -111,7 +111,9 @@
         const htmlTemplate = this.convertor.makeHtml(mdAssessmentItem);
         const htmlElement = document.createElement('div');
         htmlElement.innerHTML = htmlTemplate;
-        
+        jQuery(htmlElement).find('#answer').next().remove();
+        jQuery(htmlElement).find('#answer').remove();
+  
         const h1Elements = jQuery(htmlElement).find('h1').toArray();
         const contents = h1Elements.map((h1Element, index) => {
           let siblings;
