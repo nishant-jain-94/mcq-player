@@ -3,6 +3,8 @@
 <link rel="import" href="../../paper-button/paper-button.html">
 <link rel="import" href="../../paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">  
+<link rel="import" href="../../iron-icons/iron-icons.html">
 <link rel="import" href="simple-mde-import.html">
 <link rel="import" href="highlightjs-import.html">
 <link rel="import" href="showdown-import.html">
@@ -59,9 +61,13 @@
         background: #DD2C00;
         color: #ffffff;
       }
-      
+
       paper-radio-button {
         padding-top: 20px;
+      }
+
+      .CodeMirror {
+        border-color: transparent !important;
       }
     </style>
     <paper-card class="editor-card-element">
@@ -69,6 +75,7 @@
         <textarea id="editor"></textarea>
       </div>
       <div class="card-actions action-buttons">
+        <paper-icon-button icon="visibility" on-click="previewQuestion"></paper-icon-button> 
         <paper-button raised on-click="publishQuestion" class="publish-button">Publish</paper-button>
       </div>
     </paper-card>
@@ -121,7 +128,7 @@
 
       //TODO: Convert boilerplate as a private property in properties method.s 
       _initialize() {
-        const boilerplate = this.value || `# Question \n# Instructions \n# Option-1 \n# Option-2 \n# Option-3 \n# Option-4 \n# Answer \n`;
+        const boilerplate = this.value || `# Question \n\n# Instructions \n\n# Option-1 \n\n# Option-2 \n\n# Option-3 \n\n# Option-4 \n\n# Answer \n\n`;
         const options = {
           element: this.$.editor,
           renderingConfig: {
@@ -130,6 +137,7 @@
           shortcuts: {
             "togglePreview": "Ctrl-Alt-P"
           },
+          status: false,
           toolbar: false,
           placeholder: boilerplate,
           previewRender: this._renderPreview.bind(this)
@@ -148,6 +156,10 @@
           }
         };
         this.dispatchEvent(new CustomEvent('questionChanged', changedMdQuestion));
+      }
+
+      previewQuestion() {
+        this.simplemde.togglePreview();
       }
 
       publishQuestion() {
