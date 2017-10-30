@@ -1,8 +1,10 @@
 <link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="simple-mde-import.html">
-<link rel="import" href="highlightjs-import.html">
 <link rel="import" href="../../paper-card/paper-card.html">
 <link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="../../paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="simple-mde-import.html">
+<link rel="import" href="highlightjs-import.html">
 <link rel="import" href="showdown-import.html">
 <link rel="import" href="jquery-import.html">
 
@@ -57,15 +59,12 @@
         background: #DD2C00;
         color: #ffffff;
       }
-
+      
+      paper-radio-button {
+        padding-top: 20px;
+      }
     </style>
     <paper-card class="editor-card-element">
-      <div class="card-header">
-        <div class="card-header-content">
-          <h3>Author a question</h3>
-          <p>Use Markdown to author a question</p>
-        </div>
-      </div>
       <div class="card-content">
         <textarea id="editor"></textarea>
       </div>
@@ -128,11 +127,15 @@
           renderingConfig: {
             codeSyntaxHighlighting: true
           },
-          toolbar: false
+          shortcuts: {
+            "togglePreview": "Ctrl-Alt-P"
+          },
+          toolbar: false,
+          placeholder: boilerplate,
+          previewRender: this._renderPreview.bind(this)
         };
         const simplemde = new SimpleMDE(options);
         this.set('simplemde', simplemde);
-        simplemde.value(boilerplate);
         simplemde.codemirror.on('changes', this._handleChanges.bind(this));
         this.set('mdQuestion', boilerplate);
       }
@@ -180,6 +183,46 @@
           }
         };
         this.dispatchEvent(new CustomEvent('questionPublished', publishedQuestion));
+      }
+
+      _renderPreview(mdText) {
+        const htmlTemplate = this.convertor.makeHtml(mdText);
+        const htmlElement = document.createElement('div');
+        htmlElement.innerHTML = htmlTemplate;
+        $(htmlElement).find('#answer').next().remove();
+        $(htmlElement).find('#answer').remove();
+        
+        const h1Elements = $(htmlElement).find('h1').toArray();
+        const contents = h1Elements.map((h1Element, index) => {
+          let siblings;
+          if(index != h1Elements.length) {
+            siblings = $(h1Element).nextUntil($(h1Elements[index + 1])[0]);
+          } else {
+            siblings = $(h1Element).nextAll();
+          }
+          return siblings;
+        });
+        const previewWrapper = document.createElement('div');
+        previewWrapper.innerHTML = `<h1>Question</h1>
+                                    <div id="question"></div>
+                                    <h1>Instructions</h1>
+                                    <div id="instructions"></div>
+                                    <h1>Options</h1>
+                                    <paper-radio-group id="options">
+                                    </paper-radio-group>`;
+        $($(previewWrapper).find('#question')[0]).append(contents[0]);
+        $($(previewWrapper).find('#instructions')[0]).append(contents[1]);
+        const optionTemplate = `<paper-radio-button></paper-radio-button><div class="option"></div>`;
+          const options = contents.splice(2, contents.length - 2).map((option) => {
+            const optionElement = document.createElement('div');
+            optionElement.innerHTML = optionTemplate;
+            const radioButton = $($(optionElement).find('paper-radio-button')[0]); 
+            const radioButtonContent = $($(optionElement).find('.option')[0]).html(option);
+            radioButtonContent.insertAfter(radioButton);
+            return optionElement;
+        });
+        $($(previewWrapper).find('#options')[0]).append(options);
+        return previewWrapper.innerHTML; 
       }
     }
     window.customElements.define(McqPlayerAuthoringMode.is, McqPlayerAuthoringMode);
