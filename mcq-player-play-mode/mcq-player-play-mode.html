@@ -38,7 +38,10 @@
       
       .option {
         display: inline-block;
-        vertical-align: top;
+        /* vertical-align: top; */
+        width: 428px;
+        overflow-x: auto;
+        max-width: 100%;
       }
 
       paper-toolbar.black {
@@ -47,6 +50,10 @@
 
       paper-radio-button {
         padding-top: 20px;
+        max-width: 100%;
+        width: 100%;
+        /* overflow: auto; */
+        overflow: hidden;
       }
     </style>
     <paper-card class="play-card-element">
@@ -62,7 +69,7 @@
         <h1>Instructions</h1>
         <div id="instructions"></div>
         <h1>Options</h1>
-        <paper-radio-group id="options">
+        <paper-radio-group on-selected-changed="getSelectedOption" id="options">
           
         </paper-radio-group>
       </div>
@@ -82,6 +89,10 @@
             type: String,
             observers: 'assessmentItemChanged',
             value: `# Question\nWhat is react\n# Instructions\nGo over there\n# Option-1\nThis is Option 1\n# Option 2\nThis is Option 2`
+          },
+          selectedOption: {
+            type: String,
+            notify: true
           }
         };
       }
@@ -127,17 +138,21 @@
         
         jQuery(this.$.question).empty().append(contents[0]);
         jQuery(this.$.instructions).empty().append(contents[1]);
-        const optionTemplate = `<paper-radio-button></paper-radio-button><div class="option"></div>`;
-          const options = contents.splice(2, contents.length - 2).map((option) => {
-            const optionElement = document.createElement('div');
-            optionElement.innerHTML = optionTemplate;
-            const radioButton = jQuery(jQuery(optionElement).find('paper-radio-button')[0]); 
-            const radioButtonContent = jQuery(jQuery(optionElement).find('.option')[0]).html(option);
-            console.log(radioButtonContent);
-            radioButtonContent.insertAfter(radioButton);
-            return optionElement;
+        const optionTemplate = `<paper-radio-button><div class="option"></div></paper-radio-button>`;
+        const options = contents.splice(2, contents.length - 2).map((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.innerHTML = optionTemplate;
+          const radioButton = jQuery(jQuery(optionElement).find('paper-radio-button')[0]); 
+          radioButton.attr('name',index);
+          const radioButtonContent = jQuery(jQuery(optionElement).find('.option')[0]).html(option);
+          radioButtonContent.innerHTML = radioButton;//insertAfter(radioButton);
+          return optionElement.innerHTML;
         });
         jQuery(this.$.options).empty().append(options);
+      }
+
+      getSelectedOption() {
+        this.selectedOption = this.$.options.selected;
       }
     }
 
