@@ -141,9 +141,10 @@
         this._initialize();
       }
 
-      //TODO: Convert boilerplate as a private property in properties method.s 
+      //TODO: Convert boilerplate as a private property in properties method.
       _initialize() {
         const boilerplate = this.value || `# Question \n\n# Instructions \n\n# Option-1 \n\n# Option-2 \n\n# Option-3 \n\n# Option-4 \n\n# Answer \n\n`;
+        // Options for SimpleMDE
         const options = {
           element: this.$.editor,
           renderingConfig: {
@@ -173,6 +174,7 @@
         this.dispatchEvent(new CustomEvent('questionChanged', changedMdQuestion));
       }
 
+      // Used to toggle between the preview and the authoring mode.
       previewQuestion() {
         this.simplemde.togglePreview();
       }
@@ -183,32 +185,57 @@
         const htmlElement = document.createElement('div');
         htmlElement.innerHTML = htmlTemplate;
 
+        // Every component of the MCQ Player is stored as an Header.
         const h1Elements = jQuery(htmlElement).find('h1').toArray();
         const mcqQuestion = {};
         
-        // Populate MCQQuestion
+        // The Populate MCQQuestion Object
         h1Elements.forEach((h1Element, index) => {
           let siblings;
-          const elementId = $(h1Element).attr('id');
-          mcqQuestion[elementId] = {};
-          mcqQuestion[elementId].id = this.guid();
+          const currentElement = $(h1Element);
+          // Id of the current element.
+          const currentElementName = currentElement.attr('id');
+          // Assign a new Object to the currentElementName
+          mcqQuestion[currentElementName] = { };
+          // Assign an uniqueId to every element of the Multiple Choice Question
+          mcqQuestion[currentElementName].id = this.guid();
+          // If the element is not the last element then choose all the elements between
+          // the currentElement and the nextElement.
+          // If the element is the last element in the series then choose all the elements
+          // next to it.
           if(index != h1Elements.length) {
-            mcqQuestion[elementId].content = jQuery(h1Element).nextUntil(jQuery(h1Elements[index + 1])[0]);
+            // Assigns the nextHeaderElement.
+            const nextHeaderElement = jQuery(h1Elements[index + 1])[0];
+            // Collect all the elements between the currentElement and the nextHeaderElement.
+            const siblingElements = currentElement.nextUntil(nextHeaderElement).toArray();
+            // Store the rendered HTML structure for the current element.
+            mcqQuestion[currentElementName].template = siblingElements.map((element) => element.outerHTML).join();
+            // Store the content as a readable text.
+            mcqQuestion[currentElementName].content = siblingElements.map((element) => element.innerText).join(' ');
           } else {
-            const elementId = $(h1Element).attr('id');
-            mcqQuestion[elementId].content = jQuery(h1Element).nextAll();
+            const siblingElements = currentElement.nextAll().toArray();
+            // Since this is the last element choose all the elements after it.
+            mcqQuestion[currentElementName].template = siblingElements.map((element) => element.outerHTML).join();
+            // Store the content as readable string
+            mcqQuestion[currentElementName].content = siblingElements.map((element) => element.innerText).join(' ');
           }
         });
-        const answerText = mcqQuestion.answer.content[0].innerText.trim().toLowerCase().replace(/-/g, '');
-        mcqQuestion.answer.answerId = mcqQuestion[answerText].id;
-        delete mcqQuestion.answer.content;
 
+        // Fetches the text of the answer from the McqQuestion 
+        const answerText = mcqQuestion.answer.content.trim().toLowerCase().replace(/-/g, '');
+        // Assigns the answerId property with the id of the actual answer.
+        mcqQuestion.answer.answerId = mcqQuestion[answerText].id;
+  
+        // Create a new object containing both the raw version and the processed version of 
+        // the Multiple Choice Question
         const publishedQuestion = {
           detail: {
             mdQuestion: this.mdQuestion,
             mcqQuestion: mcqQuestion
           }
         };
+
+        // Once the question is created a `questionPublished` event is dispatched.
         this.dispatchEvent(new CustomEvent('questionPublished', publishedQuestion));
       }
 
