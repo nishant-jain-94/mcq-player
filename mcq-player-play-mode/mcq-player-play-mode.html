@@ -45,7 +45,7 @@
         width: 100%;
         max-width: 100%;
         overflow: hidden;
-        padding-top: 20px;
+        padding: 0px !important;
       }
 
       .card-content > h1 {
@@ -88,7 +88,7 @@
 
       static get observers() {
         return [
-          'assessmentItemChanged(mdAssessmentItem)'
+          'assessmentItemChanged(assessmentItem)'
         ]
       }
 
@@ -100,44 +100,23 @@
 
       connectedCallback() {
         super.connectedCallback();
-        this._initialize();
       }
 
-      _initialize() {
-        
-      }
-
-      assessmentItemChanged(mdAssessmentItem) {
-        const htmlTemplate = this.convertor.makeHtml(mdAssessmentItem);
-        const htmlElement = document.createElement('div');
-        htmlElement.innerHTML = htmlTemplate;
-        jQuery(htmlElement).find('#answer').next().remove();
-        jQuery(htmlElement).find('#answer').remove();
-  
-        const h1Elements = jQuery(htmlElement).find('h1').toArray();
-        const contents = h1Elements.map((h1Element, index) => {
-          let siblings;
-          if(index != h1Elements.length) {
-            siblings = jQuery(h1Element).nextUntil(jQuery(h1Elements[index + 1])[0]);
-          } else {
-            siblings = jQuery(h1Element).nextAll();
+      assessmentItemChanged(assessmentItem) {
+        jQuery(this.$.question).empty().append(assessmentItem.question.template);
+        jQuery(this.$.instructions).empty().append(assessmentItem.instructions.template);
+        jQuery(this.$.options).empty();
+        for(let property in assessmentItem) {
+          if (property !== 'question' && property !== 'instructions') {
+            const optionTemplate = `
+            <paper-radio-button name='${assessmentItem[property].id}'>
+              <div class="option">${assessmentItem[property].template}</div>
+            </paper-radio-button>`;
+            const optionElement = document.createElement('div');
+            optionElement.innerHTML = optionTemplate;
+            jQuery(this.$.options).append(optionTemplate)
           }
-          return siblings;
-        });
-        
-        jQuery(this.$.question).empty().append(contents[0]);
-        jQuery(this.$.instructions).empty().append(contents[1]);
-        const optionTemplate = `<paper-radio-button><div class="option"></div></paper-radio-button>`;
-        const options = contents.splice(2, contents.length - 2).map((option, index) => {
-          const optionElement = document.createElement('div');
-          optionElement.innerHTML = optionTemplate;
-          const radioButton = jQuery(jQuery(optionElement).find('paper-radio-button')[0]); 
-          radioButton.attr('name',index);
-          const radioButtonContent = jQuery(jQuery(optionElement).find('.option')[0]).html(option);
-          radioButtonContent.innerHTML = radioButton;//insertAfter(radioButton);
-          return optionElement.innerHTML;
-        });
-        jQuery(this.$.options).empty().append(options);
+        }
       }
 
       getSelectedOption() {
