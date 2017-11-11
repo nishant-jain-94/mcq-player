@@ -107,7 +107,7 @@
         jQuery(this.$.instructions).empty().append(assessmentItem.instructions.template);
         jQuery(this.$.options).empty();
         for(let property in assessmentItem) {
-          if (property !== 'question' && property !== 'instructions') {
+          if (property !== 'question' && property !== 'instructions' && property !== 'answer') {
             const optionTemplate = `
             <paper-radio-button name='${assessmentItem[property].id}'>
               <div class="option">${assessmentItem[property].template}</div>
