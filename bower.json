@@ -29,7 +29,8 @@
     "paper-radio-button": "^2.0.0",
     "paper-radio-group": "^2.0.0",
     "paper-card": "PolymerElements/paper-card#^2.0.0",
-    "paper-button": "^2.0.0"
+    "paper-button": "^2.0.0",
+    "neon-animation": "^2.0.2"
   },
   "devDependencies": {
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",

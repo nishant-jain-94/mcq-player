@@ -59,7 +59,7 @@
         <h1>Instructions</h1>
         <div id="instructions"></div>
         <h1>Options</h1>
-        <paper-radio-group on-selected-changed="getSelectedOption" id="options">   
+        <paper-radio-group selected="{{selectedOption}}" id="options">   
         </paper-radio-group>
       </div>
     </paper-card>
@@ -72,7 +72,7 @@
         return {
           assessmentItem: {
             type: Object,
-            notify: true
+            notify: true,
           },
           mdAssessmentItem: {
             type: String,
@@ -81,7 +81,8 @@
           },
           selectedOption: {
             type: String,
-            notify: true
+            notify: true,
+            value: "2cc1ce38-0156-99b9-9a1e-63ff473cd12d",
           }
         };
       }
@@ -117,10 +118,6 @@
             jQuery(this.$.options).append(optionTemplate)
           }
         }
-      }
-
-      getSelectedOption() {
-        this.selectedOption = this.$.options.selected;
       }
     }
 
